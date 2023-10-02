@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lw_1/divider_widget.dart';
 import 'dart:math';
 
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -24,18 +25,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //lemers section
   TextEditingController aController = TextEditingController();
   TextEditingController r0Controller = TextEditingController();
   TextEditingController mController = TextEditingController();
-  TextEditingController nController = TextEditingController();
+  TextEditingController auController = TextEditingController();
+  TextEditingController buontroller = TextEditingController();
   TextEditingController mxController = TextEditingController();
   TextEditingController sdController = TextEditingController();
   TextEditingController lyController = TextEditingController();
   TextEditingController nyController = TextEditingController();
-
-  //uniform section
   TextEditingController buController = TextEditingController();
+
+  final int n = 100000;
 
   double mathExp = 0;
   double dispersion = 0;
@@ -45,16 +46,14 @@ class _MyHomePageState extends State<MyHomePage> {
   int periodLength = 0;
   int apereodicInterval = 0;
   bool istriangleMin = false;
-
   int a = 0;
   int b = 0;
   int m = 0;
   int r0 = 0;
-
+  double au = 0;
+  double bu = 0;
   double rn_1 = 0;
   double rn = 0;
-
-  final int n = 1000000;
 
   List<double> numbers = [];
   List<DiagramData> chartData = [];
@@ -66,26 +65,30 @@ class _MyHomePageState extends State<MyHomePage> {
     m = int.tryParse(mController.text) ?? 0;
     switch (selectedMethod) {
       case 2: //uniform distribution
+        au = double.tryParse(auController.text) ?? 1;
+        bu = double.tryParse(buController.text) ?? 1;
+        break;
+      case 3: //gaussian distribution
         standardDeviation = double.tryParse(sdController.text) ?? 1;
         mathExp = double.tryParse(mxController.text) ?? 1;
         break;
-      case 3:
-        standardDeviation = double.tryParse(sdController.text) ?? 1;
-        mathExp = double.tryParse(mxController.text) ?? 1;
-        break;
-      case 4:
+      case 4: //exponential distribution
         ly = double.tryParse(lyController.text) ?? 1;
         break;
       case 5:
-        //gamma
+        //gamma distribution
         ly = double.tryParse(lyController.text) ?? 1;
         ny = double.tryParse(lyController.text) ?? 1;
         break;
       case 6:
-        //triangle
+        //triangle distribution
+        au = double.tryParse(auController.text) ?? 1;
+        bu = double.tryParse(buController.text) ?? 1;
         break;
       case 7:
-        //tompson
+        //simpson distribution
+        au = double.tryParse(auController.text) ?? 1;
+        bu = double.tryParse(buController.text) ?? 1;
         break;
       default:
         break;
@@ -106,22 +109,20 @@ class _MyHomePageState extends State<MyHomePage> {
       case 1:
         return roundDouble(lehmersAlgorithm(), 6);
       case 2:
-        return roundDouble(uniformDistribution(), 5);
+        return roundDouble(uniformDistribution(), 6);
       case 3:
-        return roundDouble(gaussianDistribution(), 5);
+        return roundDouble(gaussianDistribution(), 6);
       case 4:
-        return roundDouble(exponentialDistribution(), 5);
+        return roundDouble(exponentialDistribution(), 6);
       case 5:
-        return roundDouble(gammaDistribution(), 5);
+        return roundDouble(gammaDistribution(), 6);
       //gamma
       case 6:
         //triangle
-        return roundDouble(triangleDistribution(), 5);
-
+        return roundDouble(triangleDistribution(), 6);
       case 7:
         //simpson
-        return roundDouble(simpsonDistribution(), 5);
-
+        return roundDouble(simpsonDistribution(), 6);
       default:
         return 0;
     }
@@ -147,11 +148,12 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
       case 6:
         //triangle
+        triangleDistribution();
         lehmersAlgorithmExtras();
         break;
       case 7:
         //simpson
-        lehmersAlgorithmExtras();
+        simpsonDistributionExtras();
         break;
       default:
         mathExp = 0;
@@ -159,8 +161,8 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
     }
 
-    periodLength = getPeriodLength();
-    apereodicInterval = getApereodicInterval();
+    // periodLength = getPeriodLength();
+    // apereodicInterval = getApereodicInterval();
   }
 
   void buildHistogram() {
@@ -233,12 +235,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   double uniformDistribution() {
     double r1 = lehmersAlgorithm();
-    return a + (b - a) * r1;
+    return au + (bu - au) * r1;
   }
 
   void uniformDistributionExtras() {
-    mathExp = (a + b) / 2;
-    dispersion = (b - a) * (b - a) / 12;
+    mathExp = (au + bu) / 2;
+    dispersion = (bu - au) * (bu - au) / 12;
     standardDeviation = roundDouble(sqrt(dispersion), 2);
   }
 
@@ -291,14 +293,16 @@ class _MyHomePageState extends State<MyHomePage> {
     double r2 = lehmersAlgorithm();
     double x = 0;
     if (istriangleMin) {
-      x = a + (b - a) * min(r1, r2);
+      x = au + (bu - au) * min(r1, r2);
     } else {
-      x = a + (b - a) * max(r1, r2);
+      x = au + (bu - au) * max(r1, r2);
     }
     return x;
   }
 
-  void triangleDistributionExtras() {}
+  void triangleDistributionExtras() {
+    lehmersAlgorithmExtras();
+  }
 
   double roundDouble(double value, int places) {
     double mod = pow(10.0, places) as double;
@@ -308,7 +312,11 @@ class _MyHomePageState extends State<MyHomePage> {
   double simpsonDistribution() {
     double r1 = lehmersAlgorithm();
     double r2 = lehmersAlgorithm();
-    return (max(a, b) - min(a, b)) * (r1 + r2) / 2 + a;
+    return (max(au, bu) - min(au, bu)) * (r1 + r2) / 2 + au;
+  }
+
+  void simpsonDistributionExtras() {
+    lehmersAlgorithmExtras();
   }
 
   @override
@@ -325,83 +333,59 @@ class _MyHomePageState extends State<MyHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   const Text(
-                    "Lemer's distribution",
+                    "Lemer's generator",
                   ),
                   TextField(
-                    controller: aController,
+                    controller: aController..text = "52583",
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Enter "a"'),
+                    decoration:
+                        const InputDecoration(labelText: 'Enter Lehmers "a"'),
+                  ),
+                  TextField(
+                    controller: mController..text = "51913",
+                    keyboardType: TextInputType.number,
+                    decoration:
+                        const InputDecoration(labelText: 'Enter Lehmers "m"'),
+                  ),
+                  const SizedBox(
+                    height: 20,
                   ),
                   TextField(
                     controller: r0Controller..text = "1",
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(labelText: 'Enter "R0"'),
                   ),
-                  TextField(
-                    controller: mController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Enter "m"'),
+                  const SizedBox(
+                    height: 30,
                   ),
                   TextField(
-                    controller: mxController..text = "0",
+                    controller: auController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Enter "mx"'),
+                    decoration: const InputDecoration(labelText: 'Enter "a"'),
                   ),
                   TextField(
-                    controller: sdController..text = "0.2",
+                    controller: buController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Enter "sd"'),
+                    decoration: const InputDecoration(labelText: 'Enter "b"'),
                   ),
-                  TextField(
-                    controller: lyController..text = "0.5",
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Enter "ly"'),
+                  const SizedBox(
+                    height: 10,
                   ),
-                  TextField(
-                    controller: nyController..text = "0.5",
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Enter "ny"'),
-                  ),
-                  const SizedBox(height: 20),
-                  Column(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () => calculate(1),
-                            child: const Text('Lehmers'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () => calculate(2),
-                            child: const Text('Uniform'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () => calculate(3),
-                            child: const Text('Gaussian'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () => calculate(4),
-                            child: const Text('Exponential'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20,
+                      ElevatedButton(
+                        onPressed: () => calculate(2),
+                        child: const Text('Uniform'),
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           ElevatedButton(
-                            onPressed: () => calculate(5),
-                            child: const Text('Gamma'),
+                            onPressed: () => calculate(6),
+                            child: const Text('Triangle'),
                           ),
-                          Row(
+                          Column(
                             children: [
-                              ElevatedButton(
-                                onPressed: () => calculate(6),
-                                child: const Text('Triangle'),
-                              ),
                               Checkbox(
                                   value: istriangleMin,
                                   onChanged: (bool? value) {
@@ -409,11 +393,68 @@ class _MyHomePageState extends State<MyHomePage> {
                                       istriangleMin = value!;
                                     });
                                   }),
+                              const Text(
+                                'min',
+                              )
                             ],
+                          )
+                        ],
+                      ),
+                      ElevatedButton(
+                        onPressed: () => calculate(7),
+                        child: const Text('Simpson'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  TextField(
+                    controller: mxController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Enter "mx"'),
+                  ),
+                  TextField(
+                    controller: sdController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Enter "sd"'),
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  ElevatedButton(
+                    onPressed: () => calculate(3),
+                    child: const Text('Gaussian'),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  TextField(
+                    controller: lyController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Enter "ly"'),
+                  ),
+                  TextField(
+                    controller: nyController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Enter "ny"'),
+                  ),
+                  const SizedBox(height: 20),
+                  Column(
+                    children: [
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () => calculate(4),
+                            child: const Text('Exponential'),
                           ),
                           ElevatedButton(
-                            onPressed: () => calculate(7),
-                            child: const Text('Simpson'),
+                            onPressed: () => calculate(5),
+                            child: const Text('Gamma'),
                           ),
                         ],
                       ),
@@ -423,8 +464,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   Text('Math Expectation: $mathExp'),
                   Text('Dispersion: $dispersion'),
                   Text('Standard Deviation: $standardDeviation'),
-                  Text('Period Length: $periodLength'),
-                  Text('Apereodic Interval: $apereodicInterval'),
+                  //Text('Period Length: $periodLength'),
+                  //Text('Apereodic Interval: $apereodicInterval'),
                   if (numbers.isNotEmpty)
                     SfCartesianChart(series: <ChartSeries>[
                       HistogramSeries<DiagramData, double>(
