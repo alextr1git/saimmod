@@ -46,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int periodLength = 0;
   int apereodicInterval = 0;
   bool istriangleMin = false;
+  bool isLehmersAlgorithm = false;
   int a = 0;
   int b = 0;
   int m = 0;
@@ -63,7 +64,11 @@ class _MyHomePageState extends State<MyHomePage> {
     a = int.tryParse(aController.text) ?? 0;
     rn = double.tryParse(r0Controller.text) ?? 1;
     m = int.tryParse(mController.text) ?? 0;
+    isLehmersAlgorithm = false;
     switch (selectedMethod) {
+      case 1:
+        isLehmersAlgorithm = true;
+        break;
       case 2: //uniform distribution
         au = double.tryParse(auController.text) ?? 1;
         bu = double.tryParse(buController.text) ?? 1;
@@ -78,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 5:
         //gamma distribution
         ly = double.tryParse(lyController.text) ?? 1;
-        ny = double.tryParse(lyController.text) ?? 1;
+        ny = double.tryParse(nyController.text) ?? 1;
         break;
       case 6:
         //triangle distribution
@@ -132,6 +137,8 @@ class _MyHomePageState extends State<MyHomePage> {
     switch (selectedDistribution) {
       case 1:
         lehmersAlgorithmExtras();
+        periodLength = getPeriodLength();
+        apereodicInterval = getApereodicInterval();
         break;
       case 2:
         uniformDistributionExtras();
@@ -149,7 +156,6 @@ class _MyHomePageState extends State<MyHomePage> {
       case 6:
         //triangle
         triangleDistribution();
-        lehmersAlgorithmExtras();
         break;
       case 7:
         //simpson
@@ -160,9 +166,6 @@ class _MyHomePageState extends State<MyHomePage> {
         dispersion = 0;
         break;
     }
-
-    // periodLength = getPeriodLength();
-    // apereodicInterval = getApereodicInterval();
   }
 
   void buildHistogram() {
@@ -358,6 +361,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   const SizedBox(
                     height: 30,
                   ),
+                  ElevatedButton(
+                    onPressed: () => calculate(1),
+                    child: const Text('Lehmers'),
+                  ),
                   TextField(
                     controller: auController,
                     keyboardType: TextInputType.number,
@@ -464,8 +471,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   Text('Math Expectation: $mathExp'),
                   Text('Dispersion: $dispersion'),
                   Text('Standard Deviation: $standardDeviation'),
-                  //Text('Period Length: $periodLength'),
-                  //Text('Apereodic Interval: $apereodicInterval'),
+                  if (isLehmersAlgorithm)
+                    Column(
+                      children: [
+                        Text('Period Length: $periodLength'),
+                        Text('Apereodic Interval: $apereodicInterval'),
+                      ],
+                    ),
                   if (numbers.isNotEmpty)
                     SfCartesianChart(series: <ChartSeries>[
                       HistogramSeries<DiagramData, double>(
