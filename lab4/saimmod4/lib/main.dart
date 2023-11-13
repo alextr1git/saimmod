@@ -59,10 +59,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final int nB = 2;
   final int m = 3;
-  final int lambdaB = 12;
+  final int lambda = 12;
   final double mu = 5.7;
+  final double muA = 11.4;
   final int nA = 1;
-  final int lambdaA = 24;
 
   double x = 0;
   double po = 0;
@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
   double tocA = 0; //Woc - среднее время в очереди
   double p_npmA = 0; //Potkz - вероятность отказа
 
-  void calculate(int n, int lambda) {
+  void calculate(int n, double mu) {
     po = lambda / mu;
     x = lambda / (n * mu);
 
@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
     ts = z / lambda;
   }
 
-  void calculateA(int n, int lambda) {
+  void calculateA(int n, double mu) {
     poA = lambda / mu;
     xA = lambda / (n * mu);
 
@@ -149,8 +149,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void setStateByCalculations() {
     setState(() {
-      calculate(nB, lambdaB);
-      calculateA(nA, lambdaA);
+      calculate(nB, mu);
+      calculateA(nA, muA);
     });
   }
 
@@ -204,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       Row(
                         children: [
                           const Text("lambda:"),
-                          Text(lambdaB.toString())
+                          Text(lambda.toString())
                         ],
                       ),
                       Row(
@@ -248,11 +248,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       Row(
                         children: [
                           const Text("lambda:"),
-                          Text(lambdaA.toString())
+                          Text(lambda.toString())
                         ],
                       ),
                       Row(
-                        children: [const Text("mu:"), Text(mu.toString())],
+                        children: [const Text("mu:"), Text(muA.toString())],
                       ),
                       const SizedBox(
                         height: 20,
@@ -275,7 +275,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       Row(
                         children: [
                           const Text("Potkz(p_npm):"),
-                          Text(p_npm.toString())
+                          Text(p_npmA.toString())
                         ],
                       ),
                     ],
